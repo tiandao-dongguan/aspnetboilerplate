@@ -14,6 +14,9 @@ namespace Abp.Domain.Uow
         /// </summary>
         string Id { get; }
 
+       ///这里是我的代码我增加的
+         string myId { get; }
+
         /// <summary>
         /// Reference to the outer UOW if exists.
         /// </summary>
