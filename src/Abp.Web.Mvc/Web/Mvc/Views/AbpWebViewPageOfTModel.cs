@@ -3,10 +3,12 @@ using System.Web;
 using System.Web.Mvc;
 using Abp.Application.Features;
 using Abp.Authorization;
+using Abp.Configuration;
 using Abp.Dependency;
 using Abp.Extensions;
 using Abp.Localization;
 using Abp.Localization.Sources;
+using Abp.Web.Security.AntiForgery;
 
 namespace Abp.Web.Mvc.Views
 {
@@ -34,6 +36,11 @@ namespace Abp.Web.Mvc.Views
                 return appPath;
             }
         }
+
+        /// <summary>
+        /// Reference to the setting manager.
+        /// </summary>
+        public ISettingManager SettingManager { get; set; }
         
         /// <summary>
         /// Gets/sets name of the localization source that is used in this controller.
@@ -44,7 +51,6 @@ namespace Abp.Web.Mvc.Views
             get { return _localizationSource.Name; }
             set { _localizationSource = LocalizationHelper.GetSource(value); }
         }
-
         private ILocalizationSource _localizationSource;
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace Abp.Web.Mvc.Views
         protected AbpWebViewPage()
         {
             _localizationSource = NullLocalizationSource.Instance;
+            SettingManager = SingletonDependency<ISettingManager>.Instance;
         }
 
         /// <summary>
@@ -153,7 +160,7 @@ namespace Abp.Web.Mvc.Views
         /// <param name="permissionName">Name of the permission</param>
         protected virtual bool IsGranted(string permissionName)
         {
-            return StaticPermissionChecker.Instance.IsGranted(permissionName);
+            return SingletonDependency<IPermissionChecker>.Instance.IsGranted(permissionName);
         }
 
         /// <summary>
@@ -174,6 +181,11 @@ namespace Abp.Web.Mvc.Views
         protected virtual string GetFeatureValue(string featureName)
         {
             return SingletonDependency<IFeatureChecker>.Instance.GetValue(featureName);
+        }
+
+        protected virtual void SetAntiForgeryCookie()
+        {
+            SingletonDependency<IAbpAntiForgeryManager>.Instance.SetCookie(Context);
         }
     }
 }
